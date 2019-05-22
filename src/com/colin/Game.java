@@ -3,7 +3,8 @@ package com.colin;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-import static com.colin.CoordinateObject.coordinateObjects;
+import java.util.ArrayList;
+
 import static com.colin.TileChunk.tileChunks;
 
 public class Game {
@@ -26,10 +27,18 @@ public class Game {
     }
 
     private void update() {
-        mouseLocation = new PVector(applet.mouseX - cam.getPos().x, applet.mouseY - cam.getPos().y);
+        updateMouseLocation();
         /*for(CoordinateObject i : coordinateObjects) {
             i.update();
         }*/
+        updateCameraScroll();
+    }
+
+    private void updateMouseLocation() {
+        mouseLocation = new PVector(applet.mouseX - cam.getPos().x, applet.mouseY - cam.getPos().y);
+    }
+
+    private void updateCameraScroll() {
         if(applet.mouseX < 200) {
             cam.addPos(15, 0);
         } else if(applet.mouseX > applet.width - 200) {
@@ -43,7 +52,21 @@ public class Game {
     }
 
     private void render() {
+        renderDefaultBackground();
+        renderTileChunks();
+        renderTileHighlight();
+        renderCrossHair();
+        renderInformation();
+    }
+
+    private void renderDefaultBackground() {
         applet.background(128);
+    }
+
+    /*
+    Returns - Rendered chunk count
+     */
+    private int renderTileChunks() {
         int renderedObjects = 0;
         for(TileChunk i : tileChunks) {
             if(!cam.offCamera(i, TileChunk.TRUE_CHUNK_WIDTH)) {
@@ -51,84 +74,66 @@ public class Game {
                 renderedObjects++;
             }
         }
-        renderTileHighlight();
-        renderFPS();
-        renderChunkLocation();
-        renderCoordinates();
-        renderMouseLocation();
-        renderRenderedObjectsCount(renderedObjects);
-        renderCrossHair();
+        return renderedObjects;
     }
 
-    private void renderFPS() {
-        applet.pushStyle();
-        applet.fill(0);
-        applet.noStroke();
-        applet.text(applet.frameRate, 50, 50);
-        applet.popStyle();
-    }
+    public void renderInformation() {
+        int marginX = 50;
+        int marginY = 50;
+        int spacing = 20;
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add(getFPS());
+        strings.add(getCoordinates());
+        strings.add(getChunkLocation());
+        strings.add(getMouseLocation());
 
-    private void renderChunkLocation() {
-        PVector chunkLoc = new PVector(0, 0);
-        for(int i = 0; i < chunkMap.chunkMap.length; i++) {
-            for(int j = 0; j < chunkMap.chunkMap[i].length; j++) {
-                TileChunk temp = chunkMap.chunkMap[i][j];
-                if(temp.inChunk(new PVector(mouseLocation.x, mouseLocation.y))) {
-                    chunkLoc = new PVector(temp.getCoord().x, temp.getCoord().y);
-                }
-            }
-
-        }
-        applet.pushStyle();
-        applet.fill(0);
-        applet.noStroke();
-        applet.text("Chunk: " + chunkLoc.toString(), 50, 100);
-        applet.popStyle();
-    }
-
-    private void renderCoordinates() {
-        Tile tempTile = null;
-        for(int i = 0; i < chunkMap.chunkMap.length; i++) {
-            for(int j = 0; j < chunkMap.chunkMap[i].length; j++) {
-                TileChunk temp = chunkMap.chunkMap[i][j];
-                if(temp.inChunk(new PVector(mouseLocation.x, mouseLocation.y))) {
-                    tempTile = temp.getTile(mouseLocation);
-                }
+        ArrayList<String> finalStrings = new ArrayList<>();
+        for(String i : strings) {
+            if(!i.equals(" ")) {
+                finalStrings.add(i);
             }
         }
-        if(tempTile == null) return;
+
         applet.pushStyle();
-        applet.fill(0);
+        applet.fill(255);
         applet.noStroke();
-        applet.text("Coordinates: " + tempTile.getPos().x / 64 + ", " + tempTile.getPos().y / 64, 50, 150);
+        applet.textSize(18);
+        for(int i = 0; i < finalStrings.size(); i++) {
+            applet.text(strings.get(i), marginX, marginY + (i * spacing));
+        }
         applet.popStyle();
     }
 
-    private void renderMouseLocation() {
-        applet.pushStyle();
-        applet.fill(0);
-        applet.noStroke();
-        applet.text("Mouse: " + mouseLocation.toString(), 50, 200);
-        applet.popStyle();
+    private String getFPS() {
+        return "FPS: ( " + PApplet.floor(applet.frameRate) + " )";
     }
 
-    private void renderRenderedObjectsCount(int num) {
-        applet.pushStyle();
-        applet.fill(0);
-        applet.noStroke();
-        applet.text("Rendered Objects: " + num, 50, 250);
-        applet.popStyle();
+    private String getChunkLocation() {
+        TileChunk chunk = chunkMap.getChunk(mouseLocation);
+        if(chunk != null) {
+            return "Chunk: ( " + chunk.getCoord().x + ", " + chunk.getCoord().y + " )";
+        } else {
+            return " ";
+        }
+    }
+
+    private String getCoordinates() {
+        Tile tile = chunkMap.getTile(mouseLocation);
+        if(tile != null) {
+            return "Coordinates: ( " + tile.getCoordinate().x + ", " + tile.getCoordinate().y + " )";
+        } else {
+            return " ";
+        }
+    }
+
+    private String getMouseLocation() {
+        return "Mouse: ( " +  mouseLocation.x + ", " + mouseLocation.y + " )";
     }
 
     private void renderTileHighlight() {
-        for(int i = 0; i < chunkMap.chunkMap.length; i++) {
-            for(int j = 0; j < chunkMap.chunkMap[i].length; j++) {
-                TileChunk temp = chunkMap.chunkMap[i][j];
-                if(temp.inChunk(new PVector(mouseLocation.x, mouseLocation.y))) {
-                    temp.getTile(mouseLocation).renderHighlight();
-                    break;
-                }
-            }
+        Tile tile = chunkMap.getTile(mouseLocation);
+        if(tile != null) {
+            tile.renderHighlight();
         }
     }
 

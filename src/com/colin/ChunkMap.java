@@ -1,6 +1,7 @@
 package com.colin;
 
 import processing.core.PApplet;
+import processing.core.PVector;
 
 
 public class ChunkMap {
@@ -59,8 +60,12 @@ public class ChunkMap {
                         } else if(noiseVal < 0.65){
                             //DEEP GRASS
                             temp.setColor(applet.color(0, 100, 0));
-                        } else {
+                        } else if(noiseVal < 0.7){
+                            //SLATE
                             temp.setColor(applet.color(	105, 105, 105));
+                        } else if(noiseVal < 1) {
+                            //DEEP SLATE
+                            temp.setColor(applet.color(	75, 75, 75));
                         }
                     }
                 }
@@ -87,5 +92,25 @@ public class ChunkMap {
     public void setChunkMap(int numx, int numy) {
         setChunkMapHeight(numy);
         setChunkMapWidth(numx);
+    }
+
+    public Tile getTile(PVector vec) {
+        TileChunk chunk = getChunk(vec);
+        if(chunk == null) {
+            return null;
+        } else {
+            return chunk.getTile(vec);
+        }
+    }
+
+    public TileChunk getChunk(PVector vec) {
+        for(int i = 0; i < chunkMap.length; i++) {
+            for(int j = 0; j < chunkMap[i].length; j++) {
+                if(chunkMap[i][j].inChunk(vec)) {
+                    return chunkMap[i][j];
+                }
+            }
+        }
+        return null;
     }
 }
