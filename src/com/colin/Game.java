@@ -27,6 +27,9 @@ public class Game {
     }
 
     private void update() {
+        if(!applet.focused) {
+            return;
+        }
         updateMouseLocation();
         /*for(CoordinateObject i : coordinateObjects) {
             i.update();
