@@ -2,7 +2,6 @@ package com.colin;
 
 import processing.core.PApplet;
 
-import static processing.core.PApplet.floor;
 
 public class ChunkMap {
 
@@ -43,15 +42,25 @@ public class ChunkMap {
                         float noiseVal = applet.noise(((temp.getPos().x + trueMapWidth) / 64F) * noiseScale, ((temp.getPos().y + trueMapHeight) / 64F) * noiseScale);
 
                         if(noiseVal < 0.3) {
-                            temp.setColor(0);
+                            //DEEP WATER
+                            temp.setColor(applet.color(25, 25, 112));
                         } else if(noiseVal < 0.4) {
-                            temp.setColor(1);
-                        } else if(noiseVal < 0.45) {
-                            temp.setColor(2);
-                        } else if(noiseVal < 0.6) {
-                            temp.setColor(3);
+                            //WATER
+                            temp.setColor(applet.color(	0, 0, 128));
+                        } else if(noiseVal < 0.425) {
+                            //SAND
+                            temp.setColor(applet.color(235, 192, 143));
+                        } else if(noiseVal < 0.44) {
+                            //SANDY GRASS
+                            temp.setColor(applet.color(180, 183, 90));
+                        } else if(noiseVal < 0.55) {
+                            //GRASS
+                            temp.setColor(applet.color(30, 120, 5));
+                        } else if(noiseVal < 0.65){
+                            //DEEP GRASS
+                            temp.setColor(applet.color(0, 100, 0));
                         } else {
-                            temp.setColor(4);
+                            temp.setColor(applet.color(	105, 105, 105));
                         }
                     }
                 }

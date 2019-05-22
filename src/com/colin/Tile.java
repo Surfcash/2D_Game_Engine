@@ -8,7 +8,7 @@ public class Tile extends CoordinateObject{
 
     private final PApplet applet = Game.applet;
 
-    public static final int TILE_SIZE = 64;
+    public static final int TILE_SIZE = 32;
 
     private int color;
 
@@ -53,16 +53,6 @@ public class Tile extends CoordinateObject{
     }
 
     public void setColor(int num) {
-        if(num == 0) {
-            color = applet.color(0, 0, 135);
-        } else if(num == 1) {
-            color = applet.color(10, 10, 185);
-        } else if(num == 2){
-            color = applet.color(210, 180, 140);
-        } else if(num == 3){
-            color = applet.color(0, 128, 0);
-        } else if(num == 4){
-            color = applet.color(0, 90, 10);
-        }
+        color = num;
     }
 }

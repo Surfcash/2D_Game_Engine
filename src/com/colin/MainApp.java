@@ -32,19 +32,19 @@ public class MainApp extends PApplet {
     public void keyPressed() {
         switch(keyCode) {
             case 37 : {
-                game.cam.addPos(64, 0);
+                game.cam.addPos(Tile.TILE_SIZE, 0);
                 break;
             }
             case 38 : {
-                game.cam.addPos(0, 64);
+                game.cam.addPos(0, Tile.TILE_SIZE);
                 break;
             }
             case 39 : {
-                game.cam.addPos(-64, 0);
+                game.cam.addPos(-Tile.TILE_SIZE, 0);
                 break;
             }
             case 40 : {
-                game.cam.addPos(0, -64);
+                game.cam.addPos(0, -Tile.TILE_SIZE);
                 break;
             }
         }

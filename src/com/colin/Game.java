@@ -4,6 +4,7 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 import static com.colin.CoordinateObject.coordinateObjects;
+import static com.colin.TileChunk.tileChunks;
 
 public class Game {
 
@@ -16,7 +17,7 @@ public class Game {
     public Game(PApplet app) {
         applet = app;
         cam = new Camera(PApplet.floor(applet.width / 2F), PApplet.floor(applet.height / 2F));
-        chunkMap = new ChunkMap(10, 10);
+        chunkMap = new ChunkMap(100, 100);
     }
 
     public void frame() {
@@ -26,21 +27,36 @@ public class Game {
 
     private void update() {
         mouseLocation = new PVector(applet.mouseX - cam.getPos().x, applet.mouseY - cam.getPos().y);
-        for(CoordinateObject i : coordinateObjects) {
-            if(!cam.offCamera(i)) i.update();
+        /*for(CoordinateObject i : coordinateObjects) {
+            i.update();
+        }*/
+        if(applet.mouseX < 200) {
+            cam.addPos(15, 0);
+        } else if(applet.mouseX > applet.width - 200) {
+            cam.addPos(-15, 0);
+        }
+        if(applet.mouseY < 200) {
+            cam.addPos(0, 15);
+        } else if(applet.mouseY > applet.height - 200) {
+            cam.addPos(0, -15);
         }
     }
 
     private void render() {
         applet.background(128);
-        for(CoordinateObject i : coordinateObjects) {
-            if(!cam.offCamera(i)) i.render();
+        int renderedObjects = 0;
+        for(TileChunk i : tileChunks) {
+            if(!cam.offCamera(i, TileChunk.TRUE_CHUNK_WIDTH)) {
+                i.render();
+                renderedObjects++;
+            }
         }
         renderTileHighlight();
         renderFPS();
         renderChunkLocation();
         renderCoordinates();
         renderMouseLocation();
+        renderRenderedObjectsCount(renderedObjects);
         renderCrossHair();
     }
 
@@ -93,6 +109,14 @@ public class Game {
         applet.fill(0);
         applet.noStroke();
         applet.text("Mouse: " + mouseLocation.toString(), 50, 200);
+        applet.popStyle();
+    }
+
+    private void renderRenderedObjectsCount(int num) {
+        applet.pushStyle();
+        applet.fill(0);
+        applet.noStroke();
+        applet.text("Rendered Objects: " + num, 50, 250);
         applet.popStyle();
     }
 

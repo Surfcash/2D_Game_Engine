@@ -22,8 +22,7 @@ public class Camera extends CoordinateObject{
 
     }
 
-    public boolean offCamera(CoordinateObject obj) {
-        int buffer = 100;
+    public boolean offCamera(CoordinateObject obj, int buffer) {
         PVector trueLoc = new PVector(obj.getPos().x + getPos().x, obj.getPos().y + getPos().y);
         return((trueLoc.x < -buffer || trueLoc.x > applet.width + buffer) || (trueLoc.y < -buffer || trueLoc.y > applet.height + buffer));
     }

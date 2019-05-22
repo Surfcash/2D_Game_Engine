@@ -3,7 +3,11 @@ package com.colin;
 import processing.core.PApplet;
 import processing.core.PVector;
 
+import java.util.ArrayList;
+
 public class TileChunk extends CoordinateObject{
+
+    public static ArrayList<TileChunk> tileChunks = new ArrayList<>();
 
     private final PApplet applet = Game.applet;
     public static final int CHUNK_WIDTH = 16;
@@ -21,10 +25,15 @@ public class TileChunk extends CoordinateObject{
         setCoord(x, y);
         setPos(getCoord().x * TRUE_CHUNK_WIDTH, getCoord().y * TRUE_CHUNK_WIDTH);
         initTileMap();
+        tileChunks.add(this);
     }
 
     public void render() {
-
+        for(int i = 0; i < tilemap.length; i++) {
+            for(int j = 0; j < tilemap[i].length; j++) {
+                tilemap[i][j].render();
+            }
+        }
     }
 
     public void update() {
