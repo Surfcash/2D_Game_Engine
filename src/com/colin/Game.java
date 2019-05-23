@@ -5,15 +5,15 @@ import processing.core.PVector;
 
 import java.util.ArrayList;
 
-import static com.colin.TileChunk.tileChunks;
+import static com.colin.TileChunk.globalTileChunks;
 
 public class Game {
 
     public static PApplet applet;
 
-    public Camera cam;
-    public ChunkMap chunkMap;
-    public PVector mouseLocation;
+    private Camera cam;
+    private ChunkMap chunkMap;
+    private PVector mouseLocation;
 
     public Game(PApplet app) {
         applet = app;
@@ -38,7 +38,7 @@ public class Game {
     }
 
     private void updateMouseLocation() {
-        mouseLocation = new PVector(applet.mouseX - cam.getPos().x, applet.mouseY - cam.getPos().y);
+        mouseLocation = new PVector(applet.mouseX - getCamera().getPos().x, applet.mouseY - getCamera().getPos().y);
     }
 
     private void updateCameraScroll(long deltaTime) {
@@ -46,14 +46,14 @@ public class Game {
         float moveAmount = 30 * scalar;
 
         if(applet.mouseX < 200) {
-            cam.addPos(-moveAmount, 0);
+            getCamera().addPos(-moveAmount, 0);
         } else if(applet.mouseX > applet.width - 200) {
-            cam.addPos(moveAmount, 0);
+            getCamera().addPos(moveAmount, 0);
         }
         if(applet.mouseY < 200) {
-            cam.addPos(0, -moveAmount);
+            getCamera().addPos(0, -moveAmount);
         } else if(applet.mouseY > applet.height - 200) {
-            cam.addPos(0, moveAmount);
+            getCamera().addPos(0, moveAmount);
         }
     }
 
@@ -74,8 +74,8 @@ public class Game {
      */
     private int renderTileChunks() {
         int renderedObjects = 0;
-        for(TileChunk i : tileChunks) {
-            if(!cam.offCamera(i, TileChunk.TRUE_CHUNK_WIDTH)) {
+        for(TileChunk i : globalTileChunks) {
+            if(!getCamera().offCamera(i, TileChunk.TRUE_CHUNK_WIDTH)) {
                 i.render();
                 renderedObjects++;
             }
@@ -88,10 +88,10 @@ public class Game {
         int marginY = 50;
         int spacing = 20;
         ArrayList<String> strings = new ArrayList<>();
-        strings.add(getFPS());
-        strings.add(getCoordinates());
-        strings.add(getChunkLocation());
-        strings.add(getMouseLocation());
+        strings.add(getFPSString());
+        strings.add(getCoordinatesString());
+        strings.add(getChunkLocationString());
+        strings.add(getMouseLocationString());
 
         ArrayList<String> finalStrings = new ArrayList<>();
         for(String i : strings) {
@@ -110,12 +110,12 @@ public class Game {
         applet.popStyle();
     }
 
-    private String getFPS() {
+    private String getFPSString() {
         return "FPS: ( " + PApplet.floor(applet.frameRate) + " )";
     }
 
-    private String getChunkLocation() {
-        TileChunk chunk = chunkMap.getChunk(mouseLocation);
+    private String getChunkLocationString() {
+        TileChunk chunk = getChunkMap().getChunk(getMouseLocation());
         if(chunk != null) {
             return "Chunk: ( " + chunk.getCoord().x + ", " + chunk.getCoord().y + " )";
         } else {
@@ -123,8 +123,8 @@ public class Game {
         }
     }
 
-    private String getCoordinates() {
-        Tile tile = chunkMap.getTile(mouseLocation);
+    private String getCoordinatesString() {
+        Tile tile = getChunkMap().getTile(getMouseLocation());
         if(tile != null) {
             return "Coordinates: ( " + tile.getCoordinate().x + ", " + tile.getCoordinate().y + " )";
         } else {
@@ -132,12 +132,12 @@ public class Game {
         }
     }
 
-    private String getMouseLocation() {
-        return "Mouse: ( " +  mouseLocation.x + ", " + mouseLocation.y + " )";
+    private String getMouseLocationString() {
+        return "Mouse: ( " +  getMouseLocation().x + ", " + getMouseLocation().y + " )";
     }
 
     private void renderTileHighlight() {
-        Tile tile = chunkMap.getTile(mouseLocation);
+        Tile tile = getChunkMap().getTile(getMouseLocation());
         if(tile != null) {
             tile.renderHighlight();
         }
@@ -153,5 +153,17 @@ public class Game {
         applet.line(center.x - lineLength, center.y, center.x + lineLength, center.y);
         applet.line(center.x, center.y - lineLength, center.x, center.y + lineLength);
         applet.popStyle();
+    }
+
+    public Camera getCamera() {
+        return cam;
+    }
+
+    public ChunkMap getChunkMap() {
+        return chunkMap;
+    }
+
+    public PVector getMouseLocation() {
+        return mouseLocation;
     }
 }

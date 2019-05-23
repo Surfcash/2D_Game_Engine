@@ -1,14 +1,11 @@
 package com.colin;
 
-import processing.core.PApplet;
 import processing.core.PVector;
 
 
-public class ChunkMap {
+public class ChunkMap extends AppletObject{
 
-    private final PApplet applet = Game.applet;
-
-    public TileChunk[][] chunkMap;
+    private TileChunk[][] chunkMap;
     private int chunkMapHeight, chunkMapWidth;
 
     public ChunkMap(int x, int y) {
@@ -25,7 +22,7 @@ public class ChunkMap {
             for(int j = -halfChunkY; j < halfChunkY; j++) {
                 int x = (i < 0) ? i : i + 1;
                 int y = (j < 0) ? j : j + 1;
-                    chunkMap[i + halfChunkX][j + halfChunkY] = new TileChunk(x, y);
+                    getChunkMap()[i + halfChunkX][j + halfChunkY] = new TileChunk(x, y);
             }
         }
     }
@@ -35,37 +32,36 @@ public class ChunkMap {
         int trueMapWidth = getChunkMapWidth() * TileChunk.CHUNK_WIDTH * Tile.TILE_SIZE;
         int trueMapHeight = getChunkMapHeight() * TileChunk.CHUNK_WIDTH * Tile.TILE_SIZE;
 
-        for(int i = 0; i < chunkMap.length; i++) {
-            for(int j = 0; j < chunkMap[i].length; j++) {
-                for(int k = 0; k < chunkMap[i][j].tilemap.length; k++) {
-                    for(int l = 0; l < chunkMap[i][j].tilemap[k].length; l++) {
-                        Tile temp = chunkMap[i][j].tilemap[k][l];
-                        float noiseVal = applet.noise(((temp.getPos().x + trueMapWidth) / 64F) * noiseScale, ((temp.getPos().y + trueMapHeight) / 64F) * noiseScale);
+        for(TileChunk[] i : getChunkMap()) {
+            for(TileChunk j : i) {
+                for(Tile[] l : j.getTilemap()) {
+                    for(Tile k : l) {
+                        float noiseVal = getApplet().noise(((k.getPos().x + trueMapWidth) / 64F) * noiseScale, ((k.getPos().y + trueMapHeight) / 64F) * noiseScale);
 
                         if(noiseVal < 0.3) {
                             //DEEP WATER
-                            temp.setColor(applet.color(25, 25, 112));
+                            k.setType(Tile.Tiles.DEEP_WATER);
                         } else if(noiseVal < 0.4) {
                             //WATER
-                            temp.setColor(applet.color(	0, 0, 128));
+                            k.setType(Tile.Tiles.WATER);
                         } else if(noiseVal < 0.425) {
                             //SAND
-                            temp.setColor(applet.color(235, 192, 143));
-                        } else if(noiseVal < 0.44) {
+                            k.setType(Tile.Tiles.SAND);
+                        } else if(noiseVal < 0.43) {
                             //SANDY GRASS
-                            temp.setColor(applet.color(180, 183, 90));
+                            k.setType(Tile.Tiles.SANDY_GRASS);
                         } else if(noiseVal < 0.55) {
                             //GRASS
-                            temp.setColor(applet.color(30, 120, 5));
+                            k.setType(Tile.Tiles.GRASS);
                         } else if(noiseVal < 0.65){
                             //DEEP GRASS
-                            temp.setColor(applet.color(0, 100, 0));
+                            k.setType(Tile.Tiles.DEEP_GRASS);
                         } else if(noiseVal < 0.7){
                             //SLATE
-                            temp.setColor(applet.color(	105, 105, 105));
+                            k.setType(Tile.Tiles.SLATE);
                         } else if(noiseVal < 1) {
                             //DEEP SLATE
-                            temp.setColor(applet.color(	75, 75, 75));
+                            k.setType(Tile.Tiles.DEEP_SLATE);
                         }
                     }
                 }
@@ -79,6 +75,10 @@ public class ChunkMap {
 
     public int getChunkMapWidth() {
         return chunkMapWidth;
+    }
+
+    public TileChunk[][] getChunkMap() {
+        return chunkMap;
     }
 
     public void setChunkMapHeight(int num) {
@@ -104,10 +104,10 @@ public class ChunkMap {
     }
 
     public TileChunk getChunk(PVector vec) {
-        for(int i = 0; i < chunkMap.length; i++) {
-            for(int j = 0; j < chunkMap[i].length; j++) {
-                if(chunkMap[i][j].inChunk(vec)) {
-                    return chunkMap[i][j];
+        for(TileChunk[] i : getChunkMap()) {
+            for(TileChunk j : i) {
+                if(j.inChunk(vec)) {
+                    return j;
                 }
             }
         }

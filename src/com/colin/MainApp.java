@@ -6,7 +6,8 @@ public class MainApp extends PApplet {
     public static MainApp applet;
     public static Game game;
     public long timeLast, timeCurrent;
-    static long deltaTime;
+    private static long deltaTime;
+    static SpriteManager spriteManager;
 
 
     public static void main(String[] args) {
@@ -16,6 +17,7 @@ public class MainApp extends PApplet {
 
     public void setup() {
         applet = this;
+        spriteManager = new SpriteManager(this);
         surface.setTitle("Colin's Workspace");
         surface.setResizable(false);
         surface.setLocation(-3, -3);
@@ -36,22 +38,26 @@ public class MainApp extends PApplet {
         timeLast = timeCurrent;
     }
 
+    public long getDeltaTime() {
+        return deltaTime;
+    }
+
     public void keyPressed() {
         switch(keyCode) {
             case 37 : {
-                game.cam.addPos(Tile.TILE_SIZE, 0);
+                game.getCamera().addPos(Tile.TILE_SIZE, 0);
                 break;
             }
             case 38 : {
-                game.cam.addPos(0, Tile.TILE_SIZE);
+                game.getCamera().addPos(0, Tile.TILE_SIZE);
                 break;
             }
             case 39 : {
-                game.cam.addPos(-Tile.TILE_SIZE, 0);
+                game.getCamera().addPos(-Tile.TILE_SIZE, 0);
                 break;
             }
             case 40 : {
-                game.cam.addPos(0, -Tile.TILE_SIZE);
+                game.getCamera().addPos(0, -Tile.TILE_SIZE);
                 break;
             }
         }

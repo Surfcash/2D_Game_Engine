@@ -7,14 +7,13 @@ import java.util.ArrayList;
 
 public class TileChunk extends CoordinateObject{
 
-    public static ArrayList<TileChunk> tileChunks = new ArrayList<>();
+    public static ArrayList<TileChunk> globalTileChunks = new ArrayList<>();
 
-    private final PApplet applet = Game.applet;
     public static final int CHUNK_WIDTH = 16;
     public static int TRUE_CHUNK_WIDTH = CHUNK_WIDTH * Tile.TILE_SIZE;
 
     private PVector coord;
-    public Tile[][] tilemap = new Tile[CHUNK_WIDTH][CHUNK_WIDTH];
+    private Tile[][] tilemap = new Tile[CHUNK_WIDTH][CHUNK_WIDTH];
 
     public TileChunk() {
         setCoord(0, 0);
@@ -25,13 +24,13 @@ public class TileChunk extends CoordinateObject{
         setCoord(x, y);
         setPos(getCoord().x * TRUE_CHUNK_WIDTH, getCoord().y * TRUE_CHUNK_WIDTH);
         initTileMap();
-        tileChunks.add(this);
+        globalTileChunks.add(this);
     }
 
     public void render() {
-        for(int i = 0; i < tilemap.length; i++) {
-            for(int j = 0; j < tilemap[i].length; j++) {
-                tilemap[i][j].render();
+        for(Tile[] i : tilemap) {
+            for(Tile j : i) {
+                j.render();
             }
         }
     }
@@ -44,7 +43,7 @@ public class TileChunk extends CoordinateObject{
             for(int j = 0; j < CHUNK_WIDTH; j++) {
                 float tileLocX = (getCoord().x > 0) ? (getCoord().x * CHUNK_WIDTH) - (CHUNK_WIDTH - (i)) : (getCoord().x * CHUNK_WIDTH) + (CHUNK_WIDTH - (i + 1));
                 float tileLocY = (getCoord().y > 0) ? (getCoord().y * CHUNK_WIDTH) - (CHUNK_WIDTH - (j)) : (getCoord().y * CHUNK_WIDTH) + (CHUNK_WIDTH - (j + 1));
-                tilemap[i][j] = new Tile(tileLocX, tileLocY);
+                tilemap[i][j] = new Tile(tileLocX, tileLocY, Tile.Tiles.GRASS);
             }
         }
     }
@@ -72,5 +71,9 @@ public class TileChunk extends CoordinateObject{
         int x = PApplet.floor(PApplet.abs(vec.x) - ((PApplet.abs(getCoord().x) - 1) * TRUE_CHUNK_WIDTH)) / Tile.TILE_SIZE;
         int y = PApplet.floor(PApplet.abs(vec.y) - ((PApplet.abs(getCoord().y) - 1) * TRUE_CHUNK_WIDTH)) / Tile.TILE_SIZE;
         return tilemap[x][y];
+    }
+
+    public Tile[][] getTilemap() {
+        return tilemap;
     }
 }

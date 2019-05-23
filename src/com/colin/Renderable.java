@@ -1,8 +1,6 @@
 package com.colin;
 
-import java.util.ArrayList;
-
-public abstract class Renderable {
+public abstract class Renderable extends AppletObject {
     public Renderable(){
     }
 

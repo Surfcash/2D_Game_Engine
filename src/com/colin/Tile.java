@@ -1,31 +1,52 @@
 package com.colin;
 
-import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 
 import static com.colin.MainApp.game;
+import static com.colin.MainApp.spriteManager;
 
 public class Tile extends CoordinateObject{
 
-    private final PApplet applet = Game.applet;
+    enum Tiles {
+        DEFAULT("default"),
+        GRASS("grass"),
+        DEEP_GRASS("deep_grass"),
+        WATER("water"),
+        DEEP_WATER("deep_water"),
+        SAND("sand"),
+        SANDY_GRASS("sandy_grass"),
+        SLATE("slate"),
+        DEEP_SLATE("deep_slate");
 
-    public static final int TILE_SIZE = 16;
+        String name;
+
+        Tiles(String name) {
+            this.name = name;
+        }
+    }
+
+    public static final int TILE_SIZE = 32;
 
     private int color;
+    private Tiles type;
+    private PImage sprite;
     private PVector coordinate;
 
     public Tile() {
         super();
+        setType(Tiles.DEFAULT);
     }
 
-    public Tile(float x, float y) {
+    public Tile(float x, float y, Tiles tile) {
         super(x * TILE_SIZE, y * TILE_SIZE);
         setCoordinate(x, y);
         setColor(0);
+        setType(tile);
     }
 
     public void render() {
-        renderFill();
+        renderSprite();
     }
 
     public void update() {
@@ -33,31 +54,38 @@ public class Tile extends CoordinateObject{
     }
 
     private void renderWireFrame() {
-        applet.pushStyle();
-        applet.noFill();
-        applet.stroke(0, 255, 0);
-        applet.strokeWeight(1);
-        applet.rectMode(applet.CORNER);
-        applet.rect(getPos().x + game.cam.getPos().x, getPos().y + game.cam.getPos().y, getTileSize(), getTileSize());
-        applet.popStyle();
+        getApplet().pushStyle();
+        getApplet().noFill();
+        getApplet().stroke(0, 255, 0);
+        getApplet().strokeWeight(1);
+        getApplet().rectMode(getApplet().CORNER);
+        getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
+        getApplet().popStyle();
     }
 
     private void renderFill() {
-        applet.pushStyle();
-        applet.fill(color);
-        applet.noStroke();
-        applet.rectMode(applet.CORNER);
-        applet.rect(getPos().x + game.cam.getPos().x, getPos().y + game.cam.getPos().y, getTileSize(), getTileSize());
-        applet.popStyle();
+        getApplet().pushStyle();
+        getApplet().fill(getColor());
+        getApplet().noStroke();
+        getApplet().rectMode(getApplet().CORNER);
+        getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
+        getApplet().popStyle();
     }
 
     public void renderHighlight() {
-        applet.pushStyle();
-        applet.fill(128, 255, 128, 128);
-        applet.noStroke();
-        applet.rectMode(applet.CORNER);
-        applet.rect(getPos().x + game.cam.getPos().x, getPos().y + game.cam.getPos().y, getTileSize(), getTileSize());
-        applet.popStyle();
+        getApplet().pushStyle();
+        getApplet().fill(128, 255, 128, 128);
+        getApplet().noStroke();
+        getApplet().rectMode(getApplet().CORNER);
+        getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
+        getApplet().popStyle();
+    }
+
+    public void renderSprite() {
+        getApplet().pushStyle();
+        getApplet().imageMode(getApplet().CORNER);
+        getApplet().image(sprite, getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y);
+        getApplet().popStyle();
     }
 
     public int getTileSize() {
@@ -90,5 +118,18 @@ public class Tile extends CoordinateObject{
 
     public int getColor() {
         return color;
+    }
+
+    void loadSprite() {
+        this.sprite = spriteManager.getSprite("t_" + type.name);
+    }
+
+    public Tiles getType() {
+        return type;
+    }
+
+    public void setType(Tiles tile) {
+        type = tile;
+        loadSprite();
     }
 }
