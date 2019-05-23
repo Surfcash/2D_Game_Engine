@@ -9,7 +9,7 @@ public class Tile extends CoordinateObject{
 
     private final PApplet applet = Game.applet;
 
-    public static final int TILE_SIZE = 32;
+    public static final int TILE_SIZE = 16;
 
     private int color;
     private PVector coordinate;
@@ -53,7 +53,7 @@ public class Tile extends CoordinateObject{
 
     public void renderHighlight() {
         applet.pushStyle();
-        applet.fill(128, 255, 128);
+        applet.fill(128, 255, 128, 128);
         applet.noStroke();
         applet.rectMode(applet.CORNER);
         applet.rect(getPos().x + game.cam.getPos().x, getPos().y + game.cam.getPos().y, getTileSize(), getTileSize());

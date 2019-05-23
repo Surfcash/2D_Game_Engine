@@ -5,6 +5,9 @@ import processing.core.PApplet;
 public class MainApp extends PApplet {
     public static MainApp applet;
     public static Game game;
+    public long timeLast, timeCurrent;
+    static long deltaTime;
+
 
     public static void main(String[] args) {
         String[] PApp = {"com.colin.MainApp"};
@@ -18,6 +21,7 @@ public class MainApp extends PApplet {
         surface.setLocation(-3, -3);
         smooth();
         game = new Game(this);
+        timeLast = System.currentTimeMillis();
     }
 
     public void settings() {
@@ -26,7 +30,10 @@ public class MainApp extends PApplet {
 
     public void draw() {
         background(0);
-        game.frame();
+        timeCurrent = System.currentTimeMillis();
+        deltaTime = timeLast - timeCurrent;
+        game.frame(deltaTime);
+        timeLast = timeCurrent;
     }
 
     public void keyPressed() {

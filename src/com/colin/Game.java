@@ -21,12 +21,12 @@ public class Game {
         chunkMap = new ChunkMap(100, 100);
     }
 
-    public void frame() {
-        update();
+    public void frame(long deltaTime) {
+        update(deltaTime);
         render();
     }
 
-    private void update() {
+    private void update(long deltaTime) {
         if(!applet.focused) {
             return;
         }
@@ -34,23 +34,26 @@ public class Game {
         /*for(CoordinateObject i : coordinateObjects) {
             i.update();
         }*/
-        updateCameraScroll();
+        updateCameraScroll(deltaTime);
     }
 
     private void updateMouseLocation() {
         mouseLocation = new PVector(applet.mouseX - cam.getPos().x, applet.mouseY - cam.getPos().y);
     }
 
-    private void updateCameraScroll() {
+    private void updateCameraScroll(long deltaTime) {
+        float scalar = deltaTime / 60F;
+        float moveAmount = 30 * scalar;
+
         if(applet.mouseX < 200) {
-            cam.addPos(15, 0);
+            cam.addPos(-moveAmount, 0);
         } else if(applet.mouseX > applet.width - 200) {
-            cam.addPos(-15, 0);
+            cam.addPos(moveAmount, 0);
         }
         if(applet.mouseY < 200) {
-            cam.addPos(0, 15);
+            cam.addPos(0, -moveAmount);
         } else if(applet.mouseY > applet.height - 200) {
-            cam.addPos(0, -15);
+            cam.addPos(0, moveAmount);
         }
     }
 
