@@ -31,16 +31,24 @@ public class MainApp extends PApplet {
     }
 
     public void draw() {
-        background(0);
+        //Time Update
         timeCurrent = System.currentTimeMillis();
         deltaTime = timeLast - timeCurrent;
-        game.frame(deltaTime);
+
+        background(0);
+        game.frame();
+
+        //Time Update
         timeLast = timeCurrent;
     }
 
-    public long getDeltaTime() {
+    public static long getDeltaTime() {
         return deltaTime;
     }
+
+    /*
+     * Needs to be replaced with a command handler
+     */
 
     public void keyPressed() {
         switch(keyCode) {
@@ -62,5 +70,26 @@ public class MainApp extends PApplet {
             }
         }
         keyCode = 0;
+    }
+
+    public void mouseClicked() {
+        modifyTile(mouseButton);
+    }
+
+    public void mouseDragged() {
+        modifyTile(mouseButton);
+    }
+
+    private void modifyTile(int mouseButton) {
+        Tile tile = game.getHoveredTile();
+        if(tile != null) {
+            if(mouseButton == LEFT) {
+                tile.setType(Tile.Tiles.WATER);
+            }
+
+            else if(mouseButton == RIGHT) {
+                tile.setType(Tile.Tiles.GRASS);
+            }
+        }
     }
 }

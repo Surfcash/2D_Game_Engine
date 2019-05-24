@@ -24,7 +24,16 @@ public class Tile extends CoordinateObject{
         Tiles(String name) {
             this.name = name;
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
+
+    /*
+     * VARS
+     */
 
     public static final int TILE_SIZE = 32;
 
@@ -32,6 +41,10 @@ public class Tile extends CoordinateObject{
     private Tiles type;
     private PImage sprite;
     private PVector coordinate;
+
+    /*
+     * CONSTRUCTORS
+     */
 
     public Tile() {
         super();
@@ -45,12 +58,20 @@ public class Tile extends CoordinateObject{
         setType(tile);
     }
 
-    public void render() {
-        renderSprite();
-    }
+    /*
+     * UPDATERS
+     */
 
     public void update() {
 
+    }
+
+    /*
+     * RENDERS
+     */
+
+    public void render() {
+        renderSprite();
     }
 
     private void renderWireFrame() {
@@ -88,12 +109,32 @@ public class Tile extends CoordinateObject{
         getApplet().popStyle();
     }
 
+    /*
+     * GETTERS
+     */
+
+    public int getColor() {
+        return color;
+    }
+
+    public Tiles getType() {
+        return type;
+    }
+
     public int getTileSize() {
         return TILE_SIZE;
     }
 
     public PVector getCoordinate() {
         return new PVector(coordinate.x,coordinate.y);
+    }
+
+    /*
+     * SETTERS
+     */
+
+    public void setColor(int num) {
+        color = num;
     }
 
     public void setCoordinate(float x, float y) {
@@ -104,6 +145,16 @@ public class Tile extends CoordinateObject{
         setCoordinate(vector.x, vector.y);
     }
 
+    public void setType(Tiles tile) {
+        type = tile;
+        loadSprite();
+
+    }
+
+    /*
+     * MODIFIERS
+     */
+
     public void addCoordinate(float x, float y) {
         setCoordinate(coordinate.x + x, coordinate.y + y);
     }
@@ -112,24 +163,7 @@ public class Tile extends CoordinateObject{
         addCoordinate(vector.x, vector.y);
     }
 
-    public void setColor(int num) {
-        color = num;
-    }
-
-    public int getColor() {
-        return color;
-    }
-
     void loadSprite() {
-        this.sprite = spriteManager.getSprite("t_" + type.name);
-    }
-
-    public Tiles getType() {
-        return type;
-    }
-
-    public void setType(Tiles tile) {
-        type = tile;
-        loadSprite();
+        sprite = spriteManager.getSprite("t_" + type.name);
     }
 }

@@ -19,7 +19,6 @@ public abstract class CoordinateObject extends Renderable{
         coordinateObjects.add(this);
     }
 
-    /*POSITION*/
     public PVector getPos() {
         return new PVector(pos.x,pos.y);
     }

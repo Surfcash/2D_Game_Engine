@@ -14,35 +14,51 @@ public class Game {
     private Camera cam;
     private ChunkMap chunkMap;
     private PVector mouseLocation;
+    private TileChunk hoveredChunk;
+    private Tile hoveredTile;
 
     public Game(PApplet app) {
         applet = app;
         cam = new Camera(PApplet.floor(applet.width / 2F), PApplet.floor(applet.height / 2F));
-        chunkMap = new ChunkMap(100, 100);
+        chunkMap = new ChunkMap(80, 80);
     }
 
-    public void frame(long deltaTime) {
-        update(deltaTime);
+    public void frame() {
+        update();
         render();
     }
 
-    private void update(long deltaTime) {
+    /*
+     * UPDATES
+     */
+
+    private void update() {
         if(!applet.focused) {
             return;
         }
         updateMouseLocation();
+        updateHoveredChunk();
+        updateHoveredTile();
         /*for(CoordinateObject i : coordinateObjects) {
             i.update();
         }*/
-        updateCameraScroll(deltaTime);
+        updateCameraScroll();
     }
 
     private void updateMouseLocation() {
         mouseLocation = new PVector(applet.mouseX - getCamera().getPos().x, applet.mouseY - getCamera().getPos().y);
     }
 
-    private void updateCameraScroll(long deltaTime) {
-        float scalar = deltaTime / 60F;
+    private void updateHoveredChunk() {
+        hoveredChunk = getChunkMap().getChunk(getMouseLocation());
+    }
+
+    private void updateHoveredTile() {
+        hoveredTile = getChunkMap().getTile(getMouseLocation());
+    }
+
+    private void updateCameraScroll() {
+        float scalar = MainApp.getDeltaTime() / 60F;
         float moveAmount = 30 * scalar;
 
         if(applet.mouseX < 200) {
@@ -57,6 +73,10 @@ public class Game {
         }
     }
 
+    /*
+     * RENDERS
+     */
+
     private void render() {
         renderDefaultBackground();
         renderTileChunks();
@@ -69,18 +89,12 @@ public class Game {
         applet.background(128);
     }
 
-    /*
-    Returns - Rendered chunk count
-     */
-    private int renderTileChunks() {
-        int renderedObjects = 0;
+    private void renderTileChunks() {
         for(TileChunk i : globalTileChunks) {
             if(!getCamera().offCamera(i, TileChunk.TRUE_CHUNK_WIDTH)) {
                 i.render();
-                renderedObjects++;
             }
         }
-        return renderedObjects;
     }
 
     public void renderInformation() {
@@ -92,6 +106,7 @@ public class Game {
         strings.add(getCoordinatesString());
         strings.add(getChunkLocationString());
         strings.add(getMouseLocationString());
+        strings.add(getTileData());
 
         ArrayList<String> finalStrings = new ArrayList<>();
         for(String i : strings) {
@@ -110,23 +125,43 @@ public class Game {
         applet.popStyle();
     }
 
+    private void renderTileHighlight() {
+        if(getHoveredTile() != null) {
+            getHoveredTile().renderHighlight();
+        }
+    }
+
+    private void renderCrossHair() {
+        PVector center = new PVector(applet.width / 2F, applet.height / 2F);
+        int lineLength = 25;
+        applet.pushStyle();
+        applet.noFill();
+        applet.stroke(160,0,0);
+        applet.strokeWeight(3);
+        applet.line(center.x - lineLength, center.y, center.x + lineLength, center.y);
+        applet.line(center.x, center.y - lineLength, center.x, center.y + lineLength);
+        applet.popStyle();
+    }
+
+    /*
+     * GETTERS
+     */
+
     private String getFPSString() {
         return "FPS: ( " + PApplet.floor(applet.frameRate) + " )";
     }
 
     private String getChunkLocationString() {
-        TileChunk chunk = getChunkMap().getChunk(getMouseLocation());
-        if(chunk != null) {
-            return "Chunk: ( " + chunk.getCoord().x + ", " + chunk.getCoord().y + " )";
+        if(getHoveredChunk() != null) {
+            return "Chunk: ( " + getHoveredChunk().getCoord().x + ", " + getHoveredChunk().getCoord().y + " )";
         } else {
             return " ";
         }
     }
 
     private String getCoordinatesString() {
-        Tile tile = getChunkMap().getTile(getMouseLocation());
-        if(tile != null) {
-            return "Coordinates: ( " + tile.getCoordinate().x + ", " + tile.getCoordinate().y + " )";
+        if(getHoveredTile() != null) {
+            return "Coordinates: ( " + getHoveredTile().getCoordinate().x + ", " + getHoveredTile().getCoordinate().y + " )";
         } else {
             return " ";
         }
@@ -136,23 +171,12 @@ public class Game {
         return "Mouse: ( " +  getMouseLocation().x + ", " + getMouseLocation().y + " )";
     }
 
-    private void renderTileHighlight() {
-        Tile tile = getChunkMap().getTile(getMouseLocation());
-        if(tile != null) {
-            tile.renderHighlight();
+    private String getTileData() {
+        if(getHoveredTile() != null) {
+            return "Tile: ( " + getHoveredTile().getType().toString() + " )";
+        } else {
+            return " ";
         }
-    }
-
-    private void renderCrossHair() {
-        PVector center = new PVector(applet.width / 2F, applet.height / 2F);
-        int lineLength = 50;
-        applet.pushStyle();
-        applet.noFill();
-        applet.stroke(255,0,0);
-        applet.strokeWeight(3);
-        applet.line(center.x - lineLength, center.y, center.x + lineLength, center.y);
-        applet.line(center.x, center.y - lineLength, center.x, center.y + lineLength);
-        applet.popStyle();
     }
 
     public Camera getCamera() {
@@ -165,5 +189,13 @@ public class Game {
 
     public PVector getMouseLocation() {
         return mouseLocation;
+    }
+
+    public TileChunk getHoveredChunk() {
+        return hoveredChunk;
+    }
+
+    public Tile getHoveredTile() {
+        return hoveredTile;
     }
 }

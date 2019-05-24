@@ -5,8 +5,16 @@ import processing.core.PVector;
 
 public class ChunkMap extends AppletObject{
 
+    /*
+     * VARS
+     */
+
     private TileChunk[][] chunkMap;
     private int chunkMapHeight, chunkMapWidth;
+
+    /*
+     * CONSTRUCTOR
+     */
 
     public ChunkMap(int x, int y) {
         setChunkMap(x, y);
@@ -14,6 +22,10 @@ public class ChunkMap extends AppletObject{
         initChunkMap();
         setChunkMapNoise();
     }
+
+    /*
+     * INIT
+     */
 
     private void initChunkMap() {
         int halfChunkX = getChunkMapWidth() / 2;
@@ -26,6 +38,63 @@ public class ChunkMap extends AppletObject{
             }
         }
     }
+
+    /*
+     * GETTERS
+     */
+
+    public int getChunkMapHeight() {
+        return chunkMapHeight;
+    }
+
+    public int getChunkMapWidth() {
+        return chunkMapWidth;
+    }
+
+    public TileChunk[][] getChunkMap() {
+        return chunkMap;
+    }
+
+    public Tile getTile(PVector vec) {
+        TileChunk chunk = getChunk(vec);
+        if(chunk == null) {
+            return null;
+        } else {
+            return chunk.getTile(vec);
+        }
+    }
+
+    public TileChunk getChunk(PVector vec) {
+        for(TileChunk[] i : getChunkMap()) {
+            for(TileChunk j : i) {
+                if(j.inChunk(vec)) {
+                    return j;
+                }
+            }
+        }
+        return null;
+    }
+
+    /*
+     * SETTERS
+     */
+
+    public void setChunkMapHeight(int num) {
+        chunkMapHeight = num;
+    }
+
+    public void setChunkMapWidth(int num) {
+        chunkMapWidth = num;
+    }
+
+    public void setChunkMap(int numx, int numy) {
+        setChunkMapHeight(numy);
+        setChunkMapWidth(numx);
+    }
+
+    /*
+     * Needs to be improved. Too hard coded. Needs more control and based on map depth rather tile assignment.
+     */
 
     private void setChunkMapNoise() {
         float noiseScale = 0.05F;
@@ -67,50 +136,5 @@ public class ChunkMap extends AppletObject{
                 }
             }
         }
-    }
-
-    public int getChunkMapHeight() {
-        return chunkMapHeight;
-    }
-
-    public int getChunkMapWidth() {
-        return chunkMapWidth;
-    }
-
-    public TileChunk[][] getChunkMap() {
-        return chunkMap;
-    }
-
-    public void setChunkMapHeight(int num) {
-        chunkMapHeight = num;
-    }
-
-    public void setChunkMapWidth(int num) {
-        chunkMapWidth = num;
-    }
-
-    public void setChunkMap(int numx, int numy) {
-        setChunkMapHeight(numy);
-        setChunkMapWidth(numx);
-    }
-
-    public Tile getTile(PVector vec) {
-        TileChunk chunk = getChunk(vec);
-        if(chunk == null) {
-            return null;
-        } else {
-            return chunk.getTile(vec);
-        }
-    }
-
-    public TileChunk getChunk(PVector vec) {
-        for(TileChunk[] i : getChunkMap()) {
-            for(TileChunk j : i) {
-                if(j.inChunk(vec)) {
-                    return j;
-                }
-            }
-        }
-        return null;
     }
 }
