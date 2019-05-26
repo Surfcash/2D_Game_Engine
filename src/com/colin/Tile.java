@@ -1,21 +1,17 @@
 package com.colin;
 
-import processing.core.PImage;
-import processing.core.PVector;
-
 import static com.colin.MainApp.game;
-import static com.colin.MainApp.spriteManager;
 
 public class Tile extends CoordinateObject{
 
     enum Tiles {
         DEFAULT("default"),
-        GRASS("grass"),
-        DEEP_GRASS("deep_grass"),
-        WATER("water"),
         DEEP_WATER("deep_water"),
+        WATER("water"),
         SAND("sand"),
         SANDY_GRASS("sandy_grass"),
+        GRASS("grass"),
+        DEEP_GRASS("deep_grass"),
         SLATE("slate"),
         DEEP_SLATE("deep_slate");
 
@@ -35,12 +31,12 @@ public class Tile extends CoordinateObject{
      * VARS
      */
 
-    public static final int TILE_SIZE = 32;
+    public static final int TILE_SIZE = 64;
 
     private int color;
     private Tiles type;
-    private PImage sprite;
-    private PVector coordinate;
+    public Entity entity;
+    private int depth;
 
     /*
      * CONSTRUCTORS
@@ -49,10 +45,12 @@ public class Tile extends CoordinateObject{
     public Tile() {
         super();
         setType(Tiles.DEFAULT);
+        setDepth(0);
     }
 
     public Tile(float x, float y, Tiles tile) {
         super(x * TILE_SIZE, y * TILE_SIZE);
+        setSpriteRoot("t_");
         setCoordinate(x, y);
         setColor(0);
         setType(tile);
@@ -72,9 +70,12 @@ public class Tile extends CoordinateObject{
 
     public void render() {
         renderSprite();
+        if(hasEntity()) {
+            getEntity().render();
+        }
     }
 
-    private void renderWireFrame() {
+    private void renderWireframe() {
         getApplet().pushStyle();
         getApplet().noFill();
         getApplet().stroke(0, 255, 0);
@@ -94,6 +95,9 @@ public class Tile extends CoordinateObject{
     }
 
     public void renderHighlight() {
+        if(hasEntity()) {
+            getEntity().renderWireframe();
+        }
         getApplet().pushStyle();
         getApplet().fill(128, 255, 128, 128);
         getApplet().noStroke();
@@ -105,7 +109,7 @@ public class Tile extends CoordinateObject{
     public void renderSprite() {
         getApplet().pushStyle();
         getApplet().imageMode(getApplet().CORNER);
-        getApplet().image(sprite, getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y);
+        getApplet().image(getSprite(), getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y);
         getApplet().popStyle();
     }
 
@@ -125,8 +129,12 @@ public class Tile extends CoordinateObject{
         return TILE_SIZE;
     }
 
-    public PVector getCoordinate() {
-        return new PVector(coordinate.x,coordinate.y);
+    public int getDepth() {
+        return depth;
+    }
+
+    public Entity getEntity() {
+        return entity;
     }
 
     /*
@@ -137,33 +145,44 @@ public class Tile extends CoordinateObject{
         color = num;
     }
 
-    public void setCoordinate(float x, float y) {
-        this.coordinate = new PVector(x, y);
-    }
-
-    public void setCoordinate(PVector vector) {
-        setCoordinate(vector.x, vector.y);
-    }
-
     public void setType(Tiles tile) {
         type = tile;
+        if(tile == Tiles.WATER) {
+            setDepth(-1);
+        } else if(tile == Tiles.DEEP_WATER) {
+            setDepth(-2);
+        } else {
+            setDepth(0);
+        }
+        setSpriteID(tile.name);
         loadSprite();
+    }
 
+    public void setDepth(int num) {
+        this.depth = num;
+    }
+
+    public void setEntity(Entity ent) {
+        entity = ent;
+    }
+
+    public void delEntity() {
+        entity = null;
     }
 
     /*
      * MODIFIERS
      */
 
-    public void addCoordinate(float x, float y) {
-        setCoordinate(coordinate.x + x, coordinate.y + y);
+    public void addDepth(int num) {
+        this.depth += num;
     }
 
-    public void addCoordinate(PVector vector) {
-        addCoordinate(vector.x, vector.y);
-    }
+    /*
+     * QUERIES
+     */
 
-    void loadSprite() {
-        sprite = spriteManager.getSprite("t_" + type.name);
+    public boolean hasEntity() {
+        return getEntity() != null;
     }
 }

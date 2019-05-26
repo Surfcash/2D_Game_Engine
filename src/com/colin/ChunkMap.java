@@ -1,5 +1,6 @@
 package com.colin;
 
+import processing.core.PApplet;
 import processing.core.PVector;
 
 
@@ -109,27 +110,41 @@ public class ChunkMap extends AppletObject{
 
                         if(noiseVal < 0.3) {
                             //DEEP WATER
+                            k.setDepth(-2);
                             k.setType(Tile.Tiles.DEEP_WATER);
                         } else if(noiseVal < 0.4) {
                             //WATER
+                            k.setDepth(-1);
                             k.setType(Tile.Tiles.WATER);
                         } else if(noiseVal < 0.425) {
                             //SAND
+                            k.setDepth(0);
                             k.setType(Tile.Tiles.SAND);
                         } else if(noiseVal < 0.43) {
                             //SANDY GRASS
+                            k.setDepth(0);
                             k.setType(Tile.Tiles.SANDY_GRASS);
                         } else if(noiseVal < 0.55) {
                             //GRASS
+                            k.setDepth(0);
                             k.setType(Tile.Tiles.GRASS);
+                            if(getApplet().random(1) > 0.9) {
+                                k.setEntity(new Tree(k.getPos().x, k.getPos().y));
+                            }
                         } else if(noiseVal < 0.65){
                             //DEEP GRASS
+                            k.setDepth(0);
                             k.setType(Tile.Tiles.DEEP_GRASS);
+                            if(getApplet().random(1) > 0.75) {
+                                k.setEntity(new Tree(k.getPos().x, k.getPos().y));
+                            }
                         } else if(noiseVal < 0.7){
                             //SLATE
+                            k.setDepth(1);
                             k.setType(Tile.Tiles.SLATE);
                         } else if(noiseVal < 1) {
                             //DEEP SLATE
+                            k.setDepth(1);
                             k.setType(Tile.Tiles.DEEP_SLATE);
                         }
                     }

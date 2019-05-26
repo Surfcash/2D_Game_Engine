@@ -9,11 +9,13 @@ import static com.colin.TileChunk.globalTileChunks;
 
 public class Game {
 
+    public static final int WATER_LEVEL = 0;
+
     public static PApplet applet;
 
     private Camera cam;
     private ChunkMap chunkMap;
-    private PVector mouseLocation;
+    private PVector mouseLocation = new PVector();
     private TileChunk hoveredChunk;
     private Tile hoveredTile;
 
@@ -39,6 +41,7 @@ public class Game {
         updateMouseLocation();
         updateHoveredChunk();
         updateHoveredTile();
+        updateMousePressed();
         /*for(CoordinateObject i : coordinateObjects) {
             i.update();
         }*/
@@ -73,6 +76,24 @@ public class Game {
         }
     }
 
+    private void updateMousePressed() {
+        Tile.Tiles[] tileTypes = Tile.Tiles.values();
+        if (applet.mousePressed) {
+            if(getHoveredTile() != null) {
+                if(applet.mouseButton == applet.LEFT) {
+                    getHoveredTile().setType(tileTypes[MainApp.getType()]);
+                    if(getHoveredTile().getDepth() < 0) {
+                        getHoveredTile().delEntity();
+                    }
+                } else if(applet.mouseButton == applet.RIGHT) {
+                    if(getHoveredTile().hasEntity()) {
+                        getHoveredTile().delEntity();
+                    }
+                }
+            }
+        }
+    }
+
     /*
      * RENDERS
      */
@@ -86,7 +107,7 @@ public class Game {
     }
 
     private void renderDefaultBackground() {
-        applet.background(128);
+        applet.background(223, 202, 159);
     }
 
     private void renderTileChunks() {
@@ -136,7 +157,7 @@ public class Game {
         int lineLength = 25;
         applet.pushStyle();
         applet.noFill();
-        applet.stroke(160,0,0);
+        applet.stroke(225,200);
         applet.strokeWeight(3);
         applet.line(center.x - lineLength, center.y, center.x + lineLength, center.y);
         applet.line(center.x, center.y - lineLength, center.x, center.y + lineLength);
@@ -173,7 +194,7 @@ public class Game {
 
     private String getTileData() {
         if(getHoveredTile() != null) {
-            return "Tile: ( " + getHoveredTile().getType().toString() + " )";
+            return "Tile: ( " + getHoveredTile().getType().toString() + " ) ( " + getHoveredTile().getDepth() + " )";
         } else {
             return " ";
         }

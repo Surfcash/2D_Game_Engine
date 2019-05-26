@@ -17,11 +17,11 @@ public class MainApp extends PApplet {
 
     public void setup() {
         applet = this;
+        noSmooth();
         spriteManager = new SpriteManager(this);
         surface.setTitle("Colin's Workspace");
         surface.setResizable(false);
         surface.setLocation(-3, -3);
-        smooth();
         game = new Game(this);
         timeLast = System.currentTimeMillis();
     }
@@ -50,8 +50,42 @@ public class MainApp extends PApplet {
      * Needs to be replaced with a command handler
      */
 
+    public static int type = 1;
+
     public void keyPressed() {
         switch(keyCode) {
+            case 49 : {
+                type = 1;
+                break;
+            }
+            case 50 : {
+                type = 2;
+                break;
+            }
+            case 51 : {
+                type = 3;
+                break;
+            }
+            case 52 : {
+                type = 4;
+                break;
+            }
+            case 53 : {
+                type = 5;
+                break;
+            }
+            case 54 : {
+                type = 6;
+                break;
+            }
+            case 55 : {
+                type = 7;
+                break;
+            }
+            case 56 : {
+                type = 8;
+                break;
+            }
             case 37 : {
                 game.getCamera().addPos(Tile.TILE_SIZE, 0);
                 break;
@@ -72,24 +106,7 @@ public class MainApp extends PApplet {
         keyCode = 0;
     }
 
-    public void mouseClicked() {
-        modifyTile(mouseButton);
-    }
-
-    public void mouseDragged() {
-        modifyTile(mouseButton);
-    }
-
-    private void modifyTile(int mouseButton) {
-        Tile tile = game.getHoveredTile();
-        if(tile != null) {
-            if(mouseButton == LEFT) {
-                tile.setType(Tile.Tiles.WATER);
-            }
-
-            else if(mouseButton == RIGHT) {
-                tile.setType(Tile.Tiles.GRASS);
-            }
-        }
+    public static int getType() {
+        return type;
     }
 }

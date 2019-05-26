@@ -24,7 +24,8 @@ final class SpriteManager {
                 int pos = fileName.lastIndexOf(".");
                 fileName = pos > 0 ? fileName.substring(0, pos) : fileName;
                 if (i.isFile()) {
-                    sprites.add(new Sprite(applet.loadImage(i.getPath()), prefix + fileName));
+                    Sprite sprite = new Sprite(applet.loadImage(i.getPath()), prefix + fileName);
+                    sprites.add(sprite);
                     System.out.println(fileName);
                 }
             }
@@ -34,6 +35,7 @@ final class SpriteManager {
     private void loadSpriteFolders() {
         sprites.clear();
         loadSpritesFromFolder("assets/sprites/tiles", "t_");
+        loadSpritesFromFolder("assets/sprites/entities", "e_");
     }
 
     PImage getSprite(String reference) {

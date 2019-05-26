@@ -61,19 +61,13 @@ public class TileChunk extends CoordinateObject{
      */
 
     public void render() {
-        for(int i = 0; i < getTilemap().length; i++) {
-            for(int j = 0; j < getTilemap()[i].length; j++) {
+        for (int i = 0; i < getTilemap().length; i++) {
+            for (int j = 0; j < getTilemap()[i].length; j++) {
+                //Keeps the render back to front to counter negative coordinate values
                 Tile tile = (getCoord().y > 0) ? getTilemap()[i][j] : getTilemap()[i][PApplet.abs(j - CHUNK_WIDTH + 1)];
                 tile.render();
             }
         }
-        /*
-        for(Tile[] i : getTilemap()) {
-            for(Tile j : i) {
-                j.render();
-            }
-        }
-        */
     }
 
     /*
