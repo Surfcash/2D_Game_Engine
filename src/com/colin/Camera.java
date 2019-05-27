@@ -10,20 +10,16 @@ public class Camera extends CoordinateObject{
 
     private PVector camBorder;
 
-    public Camera() {
-        super();
-    }
-
     public Camera(float x, float y) {
         super(x, y);
-        setCamBorder((Game.MAP_WIDTH * CHUNK_WIDTH * TILE_SIZE) / 2F - getApplet().width, (Game.MAP_HEIGHT * CHUNK_WIDTH * TILE_SIZE) / 2F - getApplet().height);
+        setCamBorder(((Game.MAP_WIDTH * CHUNK_WIDTH * TILE_SIZE) - getApplet().width) / 2F, (Game.MAP_HEIGHT * CHUNK_WIDTH * TILE_SIZE) / 2F - getApplet().height);
     }
 
     public void render() {
     }
 
     public void update() {
-    setPos(PApplet.constrain(getPos().x, -getCamBorder().x, getCamBorder().x), PApplet.constrain(getPos().y, -getCamBorder().y, getCamBorder().y));
+        setPos(PApplet.constrain(getPos().x, -getCamBorder().x, getCamBorder().x), PApplet.constrain(getPos().y, -getCamBorder().y, getCamBorder().y));
     }
 
     public PVector getCamBorder() {

@@ -33,7 +33,6 @@ public class Tile extends CoordinateObject{
 
     public static final int TILE_SIZE = 64;
 
-    private int color;
     private Tiles type;
     public Entity entity;
     private int depth;
@@ -42,17 +41,10 @@ public class Tile extends CoordinateObject{
      * CONSTRUCTORS
      */
 
-    public Tile() {
-        super();
-        setType(Tiles.DEFAULT);
-        setDepth(0);
-    }
-
     public Tile(float x, float y, Tiles tile) {
         super(x * TILE_SIZE, y * TILE_SIZE);
         setSpriteRoot("t_");
         setCoordinate(x, y);
-        setColor(0);
         setType(tile);
     }
 
@@ -85,15 +77,6 @@ public class Tile extends CoordinateObject{
         getApplet().popStyle();
     }
 
-    private void renderFill() {
-        getApplet().pushStyle();
-        getApplet().fill(getColor());
-        getApplet().noStroke();
-        getApplet().rectMode(getApplet().CORNER);
-        getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
-        getApplet().popStyle();
-    }
-
     public void renderHighlight() {
         getApplet().pushStyle();
         getApplet().fill(128, 255, 128, 128);
@@ -118,10 +101,6 @@ public class Tile extends CoordinateObject{
      * GETTERS
      */
 
-    public int getColor() {
-        return color;
-    }
-
     public Tiles getType() {
         return type;
     }
@@ -141,10 +120,6 @@ public class Tile extends CoordinateObject{
     /*
      * SETTERS
      */
-
-    public void setColor(int num) {
-        color = num;
-    }
 
     public void setType(Tiles tile) {
         type = tile;

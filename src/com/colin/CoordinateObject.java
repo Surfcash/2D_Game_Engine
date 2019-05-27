@@ -54,6 +54,14 @@ public abstract class CoordinateObject extends Renderable{
         addPos(vector.x, vector.y);
     }
 
+    public void subPos(float x, float y) {
+        setPos(pos.x - x, pos.y - y);
+    }
+
+    public void subPos(PVector vector) {
+        subPos(vector.x, vector.y);
+    }
+
     public void addCoordinate(float x, float y) {
         setCoordinate(coordinate.x + x, coordinate.y + y);
     }

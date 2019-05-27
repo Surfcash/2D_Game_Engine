@@ -16,7 +16,8 @@ public class Game {
 
     private Camera cam;
     private ChunkMap chunkMap;
-    private PVector mouseLocation = new PVector();
+    private PVector mouseLocation;
+    private PVector screenCenter;
     private TileChunk hoveredChunk;
     private Tile hoveredTile;
 
@@ -24,6 +25,8 @@ public class Game {
         applet = app;
         cam = new Camera(PApplet.floor(applet.width / 2F), PApplet.floor(applet.height / 2F));
         chunkMap = new ChunkMap(MAP_WIDTH, MAP_HEIGHT);
+        mouseLocation = new PVector();
+        screenCenter = new PVector(applet.width / 2F, applet.height / 2F);
     }
 
     public void frame() {
@@ -43,10 +46,7 @@ public class Game {
         updateHoveredChunk();
         updateHoveredTile();
         updateMousePressed();
-        /*for(CoordinateObject i : coordinateObjects) {
-            i.update();
-        }*/
-        updateCameraScroll();
+        //updateCameraScroll();
     }
 
     private void updateMouseLocation() {
@@ -62,20 +62,10 @@ public class Game {
     }
 
     private void updateCameraScroll() {
-        float scalar = MainApp.getDeltaTime() / 60F;
-        float moveAmount = 35 * scalar;
-        int margin = 180;
+        PVector mouse = new PVector(applet.mouseX, applet.mouseY);
+        PVector vel = mouse.sub(screenCenter).div(15).limit(40);
 
-        if(applet.mouseX < margin && getCamera().getPos().x < getCamera().getCamBorder().x) {
-            getCamera().addPos(-moveAmount, 0);
-        } else if(applet.mouseX > applet.width - margin && getCamera().getPos().x > -getCamera().getCamBorder().x) {
-            getCamera().addPos(moveAmount, 0);
-        }
-        if(applet.mouseY < margin && getCamera().getPos().y < getCamera().getCamBorder().y) {
-            getCamera().addPos(0, -moveAmount);
-        } else if(applet.mouseY > applet.height - margin && getCamera().getPos().y > -getCamera().getCamBorder().y) {
-            getCamera().addPos(0, moveAmount);
-        }
+        getCamera().subPos(vel);
         getCamera().update();
     }
 
@@ -92,6 +82,8 @@ public class Game {
                     if(getHoveredTile().hasEntity()) {
                         getHoveredTile().delEntity();
                     }
+                } else if(applet.mouseButton == applet.CENTER) {
+                    updateCameraScroll();
                 }
             }
         }
@@ -178,7 +170,7 @@ public class Game {
 
     private String getChunkLocationString() {
         if(getHoveredChunk() != null) {
-            return "Chunk: ( " + getHoveredChunk().getCoord().x + ", " + getHoveredChunk().getCoord().y + " )";
+            return "Chunk: ( " + getHoveredChunk().getCoordinate().x + ", " + getHoveredChunk().getCoordinate().y + " )";
         } else {
             return " ";
         }

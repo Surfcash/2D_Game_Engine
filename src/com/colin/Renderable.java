@@ -10,9 +10,6 @@ public abstract class Renderable extends AppletObject {
     private String spriteRoot;
     private String spriteID;
 
-    public Renderable(){
-    }
-
     public abstract void render();
     public abstract void update();
 

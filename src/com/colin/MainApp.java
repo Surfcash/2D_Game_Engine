@@ -46,7 +46,7 @@ public class MainApp extends PApplet {
     }
 
     /*
-     * Needs to be replaced with a command handler
+     * Needs to be replaced with an input handler
      */
 
     public static int type = 1;
