@@ -9,7 +9,8 @@ import static com.colin.TileChunk.globalTileChunks;
 
 public class Game {
 
-    public static final int WATER_LEVEL = 0;
+    public static final int MAP_WIDTH = 80;
+    public static final int MAP_HEIGHT = 80;
 
     public static PApplet applet;
 
@@ -22,7 +23,7 @@ public class Game {
     public Game(PApplet app) {
         applet = app;
         cam = new Camera(PApplet.floor(applet.width / 2F), PApplet.floor(applet.height / 2F));
-        chunkMap = new ChunkMap(80, 80);
+        chunkMap = new ChunkMap(MAP_WIDTH, MAP_HEIGHT);
     }
 
     public void frame() {
@@ -62,18 +63,20 @@ public class Game {
 
     private void updateCameraScroll() {
         float scalar = MainApp.getDeltaTime() / 60F;
-        float moveAmount = 30 * scalar;
+        float moveAmount = 35 * scalar;
+        int margin = 180;
 
-        if(applet.mouseX < 200) {
+        if(applet.mouseX < margin && getCamera().getPos().x < getCamera().getCamBorder().x) {
             getCamera().addPos(-moveAmount, 0);
-        } else if(applet.mouseX > applet.width - 200) {
+        } else if(applet.mouseX > applet.width - margin && getCamera().getPos().x > -getCamera().getCamBorder().x) {
             getCamera().addPos(moveAmount, 0);
         }
-        if(applet.mouseY < 200) {
+        if(applet.mouseY < margin && getCamera().getPos().y < getCamera().getCamBorder().y) {
             getCamera().addPos(0, -moveAmount);
-        } else if(applet.mouseY > applet.height - 200) {
+        } else if(applet.mouseY > applet.height - margin && getCamera().getPos().y > -getCamera().getCamBorder().y) {
             getCamera().addPos(0, moveAmount);
         }
+        getCamera().update();
     }
 
     private void updateMousePressed() {
@@ -127,6 +130,7 @@ public class Game {
         strings.add(getCoordinatesString());
         strings.add(getChunkLocationString());
         strings.add(getMouseLocationString());
+        strings.add(getCameraLocationString());
         strings.add(getTileData());
 
         ArrayList<String> finalStrings = new ArrayList<>();
@@ -192,9 +196,18 @@ public class Game {
         return "Mouse: ( " +  getMouseLocation().x + ", " + getMouseLocation().y + " )";
     }
 
+    private String getCameraLocationString() {
+        return "Camera: ( " +  getCamera().getPos().x + ", " + getCamera().getPos().y + " )" + " ( " + getCamera().getCamBorder().x + ", " + getCamera().getCamBorder().y + " )";
+    }
+
     private String getTileData() {
+        String temp;
         if(getHoveredTile() != null) {
-            return "Tile: ( " + getHoveredTile().getType().toString() + " ) ( " + getHoveredTile().getDepth() + " )";
+            temp = "Tile: ( " + getHoveredTile().getType().toString() + " ) ( " + getHoveredTile().getDepth() + " )";
+            if(getHoveredTile().hasEntity()) {
+                temp = temp + " ( " + getHoveredTile().getEntity().getSpriteID() + " )";
+            }
+            return temp;
         } else {
             return " ";
         }

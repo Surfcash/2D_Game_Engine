@@ -1,6 +1,7 @@
 package com.colin;
 
-import processing.core.PApplet;
+import com.colin.Entities.Rock;
+import com.colin.Entities.Tree;
 import processing.core.PVector;
 
 
@@ -130,6 +131,8 @@ public class ChunkMap extends AppletObject{
                             k.setType(Tile.Tiles.GRASS);
                             if(getApplet().random(1) > 0.9) {
                                 k.setEntity(new Tree(k.getPos().x, k.getPos().y));
+                            } else if(getApplet().random(1) > 0.99) {
+                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
                             }
                         } else if(noiseVal < 0.65){
                             //DEEP GRASS
@@ -137,15 +140,24 @@ public class ChunkMap extends AppletObject{
                             k.setType(Tile.Tiles.DEEP_GRASS);
                             if(getApplet().random(1) > 0.75) {
                                 k.setEntity(new Tree(k.getPos().x, k.getPos().y));
+                            } else if(getApplet().random(1) > 0.99) {
+                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
                             }
+
                         } else if(noiseVal < 0.7){
                             //SLATE
                             k.setDepth(1);
                             k.setType(Tile.Tiles.SLATE);
+                            if(getApplet().random(1) > 0.9) {
+                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
+                            }
                         } else if(noiseVal < 1) {
                             //DEEP SLATE
                             k.setDepth(1);
                             k.setType(Tile.Tiles.DEEP_SLATE);
+                            if(getApplet().random(1) > 0.75) {
+                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
+                            }
                         }
                     }
                 }

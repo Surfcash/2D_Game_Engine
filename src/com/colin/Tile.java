@@ -95,15 +95,16 @@ public class Tile extends CoordinateObject{
     }
 
     public void renderHighlight() {
-        if(hasEntity()) {
-            getEntity().renderWireframe();
-        }
         getApplet().pushStyle();
         getApplet().fill(128, 255, 128, 128);
-        getApplet().noStroke();
+        getApplet().stroke(128,255,128,225);
+        getApplet().strokeWeight(2);
         getApplet().rectMode(getApplet().CORNER);
         getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
         getApplet().popStyle();
+        if(hasEntity()) {
+            getEntity().renderHighlight();
+        }
     }
 
     public void renderSprite() {

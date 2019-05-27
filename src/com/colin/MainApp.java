@@ -17,7 +17,6 @@ public class MainApp extends PApplet {
 
     public void setup() {
         applet = this;
-        noSmooth();
         spriteManager = new SpriteManager(this);
         surface.setTitle("Colin's Workspace");
         surface.setResizable(false);
