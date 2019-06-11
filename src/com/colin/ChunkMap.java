@@ -1,8 +1,10 @@
 package com.colin;
 
-import com.colin.Entities.Rock;
-import com.colin.Entities.Tree;
 import processing.core.PVector;
+
+import java.util.ArrayList;
+
+import static com.colin.MainApp.game;
 
 
 public class ChunkMap extends AppletObject{
@@ -13,6 +15,7 @@ public class ChunkMap extends AppletObject{
 
     private TileChunk[][] chunkMap;
     private int chunkMapHeight, chunkMapWidth;
+    private LightMap lightMap;
 
     /*
      * CONSTRUCTOR
@@ -21,6 +24,7 @@ public class ChunkMap extends AppletObject{
     public ChunkMap(int x, int y) {
         setChunkMap(x, y);
         chunkMap = new TileChunk[getChunkMapWidth()][getChunkMapHeight()];
+        lightMap = new LightMap(x * TileChunk.CHUNK_WIDTH, y * TileChunk.CHUNK_WIDTH);
         initChunkMap();
         setChunkMapNoise();
     }
@@ -57,6 +61,22 @@ public class ChunkMap extends AppletObject{
         return chunkMap;
     }
 
+    public LightMap getLightMap() {
+        return lightMap;
+    }
+
+    public ArrayList<Tile> getSurroundingTiles(Tile tile) {
+        ArrayList<Tile> surroundingTiles = new ArrayList<>();
+        int tileSizeHalf = Tile.TILE_SIZE / 2;
+        int tileSize = Tile.TILE_SIZE;
+        PVector tileCenter = new PVector(tile.getPos().x + tileSizeHalf, tile.getPos().y + tileSizeHalf);
+        surroundingTiles.add(getTile(new PVector(tileCenter.x + tileSize, tileCenter.y)));
+        surroundingTiles.add(getTile(new PVector(tileCenter.x - tileSize, tileCenter.y)));
+        surroundingTiles.add(getTile(new PVector(tileCenter.x, tileCenter.y + tileSize)));
+        surroundingTiles.add(getTile(new PVector(tileCenter.x, tileCenter.y - tileSize)));
+        return surroundingTiles;
+    }
+
     public Tile getTile(PVector vec) {
         TileChunk chunk = getChunk(vec);
         if(chunk == null) {
@@ -67,11 +87,9 @@ public class ChunkMap extends AppletObject{
     }
 
     public TileChunk getChunk(PVector vec) {
-        for(TileChunk[] i : getChunkMap()) {
-            for(TileChunk j : i) {
-                if(j.inChunk(vec)) {
-                    return j;
-                }
+        for(TileChunk i : game.getChunksOnScreen()) {
+            if(i.inChunk(vec)) {
+                return i;
             }
         }
         return null;
@@ -130,18 +148,30 @@ public class ChunkMap extends AppletObject{
                             k.setDepth(0);
                             k.setType(Tile.Tiles.GRASS);
                             if(getApplet().random(1) > 0.9) {
-                                k.setEntity(new Tree(k.getPos().x, k.getPos().y));
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.TREE));
+                            } else if(getApplet().random(1) > 0.95) {
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.LONG_GRASS));
+                            } else if(getApplet().random(1) > 0.97) {
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.SUNFLOWER));
+                            } else if(getApplet().random(1) > 0.97) {
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.LILAC));
                             } else if(getApplet().random(1) > 0.99) {
-                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.ROCK));
                             }
                         } else if(noiseVal < 0.65){
                             //DEEP GRASS
                             k.setDepth(0);
                             k.setType(Tile.Tiles.DEEP_GRASS);
                             if(getApplet().random(1) > 0.75) {
-                                k.setEntity(new Tree(k.getPos().x, k.getPos().y));
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.TREE));
+                            } else if(getApplet().random(1) > 0.95) {
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.LONG_GRASS));
                             } else if(getApplet().random(1) > 0.99) {
-                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.SUNFLOWER));
+                            } else if(getApplet().random(1) > 0.99) {
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.LILAC));
+                            } else if(getApplet().random(1) > 0.99) {
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.ROCK));
                             }
 
                         } else if(noiseVal < 0.7){
@@ -149,14 +179,14 @@ public class ChunkMap extends AppletObject{
                             k.setDepth(1);
                             k.setType(Tile.Tiles.SLATE);
                             if(getApplet().random(1) > 0.9) {
-                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.ROCK));
                             }
                         } else if(noiseVal < 1) {
                             //DEEP SLATE
                             k.setDepth(1);
                             k.setType(Tile.Tiles.DEEP_SLATE);
                             if(getApplet().random(1) > 0.75) {
-                                k.setEntity(new Rock(k.getPos().x, k.getPos().y));
+                                k.setEntity(new TileEntity(k.getPos().x, k.getPos().y, TileEntity.TileEntities.ROCK));
                             }
                         }
                     }

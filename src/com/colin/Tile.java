@@ -1,5 +1,7 @@
 package com.colin;
 
+import processing.core.PApplet;
+
 import static com.colin.MainApp.game;
 
 public class Tile extends CoordinateObject{
@@ -34,8 +36,9 @@ public class Tile extends CoordinateObject{
     public static final int TILE_SIZE = 64;
 
     private Tiles type;
-    public Entity entity;
+    public TileEntity entity;
     private int depth;
+    private float lightLevel;
 
     /*
      * CONSTRUCTORS
@@ -53,7 +56,32 @@ public class Tile extends CoordinateObject{
      */
 
     public void update() {
+        if(lightLevel == 0) {
+            setTint(game.getClock().getCurrentTint());
+        }
+        setLightLevel(game.getChunkMap().getLightMap().getLight(getCoordX(), getCoordY()));
+        if(getLightLevel() > 0) {
+            updateLightingTint();
+        }
+        if(hasEntity()) {
+            getEntity().update();
+            getEntity().setTint(getTint());
+        }
+    }
 
+    public void updateLightingTint() {
+        int naturalTint = game.getClock().getCurrentTint();
+        float lightValue = getLightLevel();
+        float r = PApplet.map(lightValue, 0, 1, 65, 210);
+        float g = PApplet.map(lightValue, 0, 1, 20, 200);
+        float b = PApplet.map(lightValue, 0, 1, 65, 115);
+
+        float tintR = getApplet().red(naturalTint);
+        float tintG = getApplet().green(naturalTint);
+        float tintB = getApplet().blue(naturalTint);
+
+        int newColor = getApplet().color((r > tintR) ? r : tintR, (g > tintG) ? g : tintG, (b > tintB) ? b : tintB);
+        setTint(newColor);
     }
 
     /*
@@ -61,6 +89,7 @@ public class Tile extends CoordinateObject{
      */
 
     public void render() {
+        update();
         renderSprite();
         if(hasEntity()) {
             getEntity().render();
@@ -73,7 +102,7 @@ public class Tile extends CoordinateObject{
         getApplet().stroke(0, 255, 0);
         getApplet().strokeWeight(1);
         getApplet().rectMode(getApplet().CORNER);
-        getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
+        getApplet().rect(getPos().x + game.getCamera().getRealPos().x, getPos().y + game.getCamera().getRealPos().y, getTileSize(), getTileSize());
         getApplet().popStyle();
     }
 
@@ -83,7 +112,7 @@ public class Tile extends CoordinateObject{
         getApplet().stroke(128,255,128,225);
         getApplet().strokeWeight(2);
         getApplet().rectMode(getApplet().CORNER);
-        getApplet().rect(getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y, getTileSize(), getTileSize());
+        getApplet().rect(getPos().x + game.getCamera().getRealPos().x, getPos().y + game.getCamera().getRealPos().y, getTileSize(), getTileSize());
         getApplet().popStyle();
         if(hasEntity()) {
             getEntity().renderHighlight();
@@ -93,7 +122,8 @@ public class Tile extends CoordinateObject{
     public void renderSprite() {
         getApplet().pushStyle();
         getApplet().imageMode(getApplet().CORNER);
-        getApplet().image(getSprite(), getPos().x + game.getCamera().getPos().x, getPos().y + game.getCamera().getPos().y);
+        getApplet().tint(getTint());
+        getApplet().image(getSprite(), getPos().x + game.getCamera().getRealPos().x, getPos().y + game.getCamera().getRealPos().y);
         getApplet().popStyle();
     }
 
@@ -113,7 +143,11 @@ public class Tile extends CoordinateObject{
         return depth;
     }
 
-    public Entity getEntity() {
+    public float getLightLevel() {
+        return lightLevel;
+    }
+
+    public TileEntity getEntity() {
         return entity;
     }
 
@@ -130,16 +164,22 @@ public class Tile extends CoordinateObject{
         } else {
             setDepth(0);
         }
+        if(hasEntity() && getDepth() < 0) {
+            delEntity();
+        }
         setSpriteID(tile.name);
-        loadSprite();
     }
 
     public void setDepth(int num) {
         this.depth = num;
     }
 
-    public void setEntity(Entity ent) {
+    public void setEntity(TileEntity ent) {
         entity = ent;
+    }
+
+    public void setLightLevel(float num) {
+        lightLevel = num;
     }
 
     public void delEntity() {
@@ -160,5 +200,23 @@ public class Tile extends CoordinateObject{
 
     public boolean hasEntity() {
         return getEntity() != null;
+    }
+
+    @Override
+    public String toString() {
+        String str = "[Tile] [Coordinates: ( " + PApplet.floor(getCoordinate().x) + ", " + PApplet.floor(getCoordinate().y) + " )]" + " [Type: ( " + getType().toString() + " )] [Depth: ( " + getDepth() + " )] [Light: ( " + getLightLevel() + " )]";
+        if(hasEntity()) {
+            str = str + " [Entity: ( " + getEntity().getSpriteID() + " )]";
+        }
+        return str;
+    }
+
+    public static Tiles getTileType(String str) {
+        for(Tiles i : Tiles.values()) {
+            if(str.equals(i.name)) {
+                return i;
+            }
+        }
+        return null;
     }
 }

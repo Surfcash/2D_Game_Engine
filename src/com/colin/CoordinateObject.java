@@ -1,5 +1,6 @@
 package com.colin;
 
+import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
@@ -28,6 +29,14 @@ public abstract class CoordinateObject extends Renderable{
 
     public PVector getCoordinate() {
         return new PVector(coordinate.x,coordinate.y);
+    }
+
+    public int getCoordX() {
+        return PApplet.floor(getCoordinate().x);
+    }
+
+    public int getCoordY() {
+        return PApplet.floor(getCoordinate().y);
     }
 
     public void setPos(float x, float y) {

@@ -1,10 +1,12 @@
 package com.colin;
 
+import com.colin.UI.UI;
 import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
 
+import static com.colin.MainApp.getDeltaTime;
 import static com.colin.TileChunk.globalTileChunks;
 
 public class Game {
@@ -16,17 +18,23 @@ public class Game {
 
     private Camera cam;
     private ChunkMap chunkMap;
+    private UI ui;
     private PVector mouseLocation;
     private PVector screenCenter;
     private TileChunk hoveredChunk;
     private Tile hoveredTile;
+    private Clock clock;
+
+    private ArrayList<TileChunk> chunksOnScreen;
 
     public Game(PApplet app) {
         applet = app;
-        cam = new Camera(PApplet.floor(applet.width / 2F), PApplet.floor(applet.height / 2F));
+        cam = new Camera(0, 0);
         chunkMap = new ChunkMap(MAP_WIDTH, MAP_HEIGHT);
         mouseLocation = new PVector();
         screenCenter = new PVector(applet.width / 2F, applet.height / 2F);
+        ui = new UI();
+        clock = new Clock(22);
     }
 
     public void frame() {
@@ -39,18 +47,26 @@ public class Game {
      */
 
     private void update() {
-        if(!applet.focused) {
-            return;
+        if(applet.focused) {
+            updateTime();
+            updateMouseLocation();
+            updateChunksOnScreen();
+            updateHoveredChunk();
+            updateHoveredTile();
+            updateMousePressed();
+            getCamera().update();
+            updateTileChunks();
         }
-        updateMouseLocation();
-        updateHoveredChunk();
-        updateHoveredTile();
-        updateMousePressed();
-        //updateCameraScroll();
+
+    }
+
+    private void updateTime() {
+        clock.addSeconds(getDeltaTime() * 0.5F);
+        clock.update();
     }
 
     private void updateMouseLocation() {
-        mouseLocation = new PVector(applet.mouseX - getCamera().getPos().x, applet.mouseY - getCamera().getPos().y);
+        mouseLocation = new PVector(applet.mouseX - getCamera().getRealPos().x, applet.mouseY - getCamera().getRealPos().y);
     }
 
     private void updateHoveredChunk() {
@@ -58,28 +74,38 @@ public class Game {
     }
 
     private void updateHoveredTile() {
-        hoveredTile = getChunkMap().getTile(getMouseLocation());
+        hoveredTile = (getHoveredChunk() != null) ? getHoveredChunk().getTile(getMouseLocation()) : getChunkMap().getTile(getMouseLocation());
     }
 
     private void updateCameraScroll() {
-        PVector mouse = new PVector(applet.mouseX, applet.mouseY);
-        PVector vel = mouse.sub(screenCenter).div(15).limit(40);
+        int accelerationLimiter = 8;
+        int velocityLimit = PApplet.floor(15 * getDeltaTime());
 
-        getCamera().subPos(vel);
-        getCamera().update();
+        PVector mouse = new PVector(applet.mouseX, applet.mouseY);
+        PVector vel = mouse.sub(screenCenter).div(accelerationLimiter).limit(velocityLimit);
+        getCamera().setVel(-vel.x, -vel.y);
     }
 
     private void updateMousePressed() {
-        Tile.Tiles[] tileTypes = Tile.Tiles.values();
         if (applet.mousePressed) {
             if(getHoveredTile() != null) {
                 if(applet.mouseButton == applet.LEFT) {
-                    getHoveredTile().setType(tileTypes[MainApp.getType()]);
-                    if(getHoveredTile().getDepth() < 0) {
-                        getHoveredTile().delEntity();
+                    String selectedSlotID = getUI().getHotbar().getSelectedSlot().getItem().getID();
+                    Tile.Tiles type = Tile.getTileType(selectedSlotID);
+                    TileEntity.TileEntities entity = TileEntity.getEntityType(selectedSlotID);
+                    if(type != null) {
+                        getHoveredTile().setType(type);
+                    } else if(entity != null && getHoveredTile().getDepth() >= 0) {
+                        getHoveredTile().setEntity(new TileEntity(getHoveredTile().getPos().x, getHoveredTile().getPos().y, entity));
+                        if(entity == TileEntity.TileEntities.LAMP_POST) {
+                            getChunkMap().getLightMap().setSource(getHoveredTile().getCoordX(), getHoveredTile().getCoordY());
+                        }
                     }
                 } else if(applet.mouseButton == applet.RIGHT) {
                     if(getHoveredTile().hasEntity()) {
+                        if(getHoveredTile().getEntity().getType() == TileEntity.TileEntities.LAMP_POST) {
+                            getChunkMap().getLightMap().delSource(getHoveredTile().getCoordX(), getHoveredTile().getCoordY());
+                        }
                         getHoveredTile().delEntity();
                     }
                 } else if(applet.mouseButton == applet.CENTER) {
@@ -89,121 +115,39 @@ public class Game {
         }
     }
 
+    private void updateTileChunks() {
+        for(TileChunk i : getChunksOnScreen()) {
+            i.update();
+        }
+    }
+
     /*
      * RENDERS
      */
 
     private void render() {
-        renderDefaultBackground();
         renderTileChunks();
         renderTileHighlight();
-        renderCrossHair();
-        renderInformation();
-    }
-
-    private void renderDefaultBackground() {
-        applet.background(223, 202, 159);
+        getUI().render();
     }
 
     private void renderTileChunks() {
-        for(TileChunk i : globalTileChunks) {
-            if(!getCamera().offCamera(i, TileChunk.TRUE_CHUNK_WIDTH)) {
+        if(getChunksOnScreen() != null) {
+            for (TileChunk i : getChunksOnScreen()) {
                 i.render();
             }
         }
     }
 
-    public void renderInformation() {
-        int marginX = 50;
-        int marginY = 50;
-        int spacing = 20;
-        ArrayList<String> strings = new ArrayList<>();
-        strings.add(getFPSString());
-        strings.add(getCoordinatesString());
-        strings.add(getChunkLocationString());
-        strings.add(getMouseLocationString());
-        strings.add(getCameraLocationString());
-        strings.add(getTileData());
-
-        ArrayList<String> finalStrings = new ArrayList<>();
-        for(String i : strings) {
-            if(!i.equals(" ")) {
-                finalStrings.add(i);
-            }
-        }
-
-        applet.pushStyle();
-        applet.fill(255);
-        applet.noStroke();
-        applet.textSize(18);
-        for(int i = 0; i < finalStrings.size(); i++) {
-            applet.text(strings.get(i), marginX, marginY + (i * spacing));
-        }
-        applet.popStyle();
-    }
-
     private void renderTileHighlight() {
-        if(getHoveredTile() != null) {
+        if (getHoveredTile() != null) {
             getHoveredTile().renderHighlight();
         }
-    }
-
-    private void renderCrossHair() {
-        PVector center = new PVector(applet.width / 2F, applet.height / 2F);
-        int lineLength = 25;
-        applet.pushStyle();
-        applet.noFill();
-        applet.stroke(225,200);
-        applet.strokeWeight(3);
-        applet.line(center.x - lineLength, center.y, center.x + lineLength, center.y);
-        applet.line(center.x, center.y - lineLength, center.x, center.y + lineLength);
-        applet.popStyle();
     }
 
     /*
      * GETTERS
      */
-
-    private String getFPSString() {
-        return "FPS: ( " + PApplet.floor(applet.frameRate) + " )";
-    }
-
-    private String getChunkLocationString() {
-        if(getHoveredChunk() != null) {
-            return "Chunk: ( " + getHoveredChunk().getCoordinate().x + ", " + getHoveredChunk().getCoordinate().y + " )";
-        } else {
-            return " ";
-        }
-    }
-
-    private String getCoordinatesString() {
-        if(getHoveredTile() != null) {
-            return "Coordinates: ( " + getHoveredTile().getCoordinate().x + ", " + getHoveredTile().getCoordinate().y + " )";
-        } else {
-            return " ";
-        }
-    }
-
-    private String getMouseLocationString() {
-        return "Mouse: ( " +  getMouseLocation().x + ", " + getMouseLocation().y + " )";
-    }
-
-    private String getCameraLocationString() {
-        return "Camera: ( " +  getCamera().getPos().x + ", " + getCamera().getPos().y + " )" + " ( " + getCamera().getCamBorder().x + ", " + getCamera().getCamBorder().y + " )";
-    }
-
-    private String getTileData() {
-        String temp;
-        if(getHoveredTile() != null) {
-            temp = "Tile: ( " + getHoveredTile().getType().toString() + " ) ( " + getHoveredTile().getDepth() + " )";
-            if(getHoveredTile().hasEntity()) {
-                temp = temp + " ( " + getHoveredTile().getEntity().getSpriteID() + " )";
-            }
-            return temp;
-        } else {
-            return " ";
-        }
-    }
 
     public Camera getCamera() {
         return cam;
@@ -217,11 +161,37 @@ public class Game {
         return mouseLocation;
     }
 
+    public PVector getScreenCenter() {
+        return screenCenter;
+    }
+
     public TileChunk getHoveredChunk() {
         return hoveredChunk;
     }
 
+    public ArrayList<TileChunk> getChunksOnScreen() {
+        return chunksOnScreen;
+    }
+
+    private void updateChunksOnScreen() {
+        ArrayList<TileChunk> tileChunks = new ArrayList<>();
+        for(TileChunk i : globalTileChunks) {
+            if(!getCamera().chunkOffCamera(i, TileChunk.TRUE_CHUNK_WIDTH + Tile.TILE_SIZE)) {
+                tileChunks.add(i);
+            }
+        }
+        chunksOnScreen = tileChunks;
+    }
+
     public Tile getHoveredTile() {
         return hoveredTile;
+    }
+
+    public UI getUI() {
+        return ui;
+    }
+
+    public Clock getClock() {
+        return clock;
     }
 }

@@ -1,32 +1,23 @@
 package com.colin;
 
 import processing.core.PImage;
-import processing.core.PVector;
 
 import static com.colin.MainApp.game;
 import static com.colin.MainApp.spriteManager;
 
-public abstract class Entity extends PhysicsObject {
+abstract class Entity extends CoordinateObject {
 
     private int width, height;
-    private PVector renderPoint;
     private PImage highlightedSprite;
 
-    public Entity(float x, float y, String id) {
+    public Entity(float x, float y, String id, int width, int height) {
         super(x, y);
         setSpriteRoot("e_");
         setSpriteID(id);
-        loadSprite();
+        setWidth(width);
+        setHeight(height);
+        setRenderPoint(getPos());
         loadHighlightedSprite();
-    }
-
-
-    public void update() {
-
-    }
-
-    public void render() {
-        renderSprite();
     }
 
     public void renderWireframe() {
@@ -35,21 +26,22 @@ public abstract class Entity extends PhysicsObject {
         getApplet().stroke(255, 225);
         getApplet().strokeWeight(2);
         getApplet().rectMode(getApplet().CENTER);
-        getApplet().rect(getRenderPoint().x + game.getCamera().getPos().x, getRenderPoint().y + game.getCamera().getPos().y, getWidth(), getHeight());
+        getApplet().rect(getRenderPoint().x + game.getCamera().getRealPos().x, getRenderPoint().y + game.getCamera().getRealPos().y, getWidth(), getHeight());
         getApplet().popStyle();
     }
 
     public void renderHighlight() {
         getApplet().pushStyle();
         getApplet().imageMode(getApplet().CENTER);
-        getApplet().image(getHighlightedSprite(), getRenderPoint().x + game.getCamera().getPos().x, getRenderPoint().y + game.getCamera().getPos().y, getWidth(), getHeight());
+        getApplet().image(getHighlightedSprite(), getRenderPoint().x + game.getCamera().getRealPos().x, getRenderPoint().y + game.getCamera().getRealPos().y);
         getApplet().popStyle();
     }
 
     public void renderSprite() {
         getApplet().pushStyle();
         getApplet().imageMode(getApplet().CENTER);
-        getApplet().image(getSprite(), getRenderPoint().x + game.getCamera().getPos().x, getRenderPoint().y + game.getCamera().getPos().y, getWidth(), getHeight());
+        getApplet().tint(getTint());
+        getApplet().image(getSprite(), getRenderPoint().x + game.getCamera().getRealPos().x, getRenderPoint().y + game.getCamera().getRealPos().y);
         getApplet().popStyle();
     }
 
@@ -59,10 +51,6 @@ public abstract class Entity extends PhysicsObject {
 
     public int getHeight() {
         return height;
-    }
-
-    public PVector getRenderPoint() {
-        return renderPoint;
     }
 
     public PImage getHighlightedSprite() {
@@ -75,14 +63,6 @@ public abstract class Entity extends PhysicsObject {
 
     public void setHeight(int num) {
         height = num;
-    }
-
-    public void setRenderPoint(float x, float y) {
-        this.renderPoint = new PVector(x, y);
-    }
-
-    public void setRenderPoint(PVector vector) {
-        setRenderPoint(vector.x, vector.y);
     }
 
     public void setHighlightedSprite(PImage img) {

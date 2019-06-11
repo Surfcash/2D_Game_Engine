@@ -1,23 +1,27 @@
 package com.colin;
 
+import processing.core.PApplet;
 import processing.core.PImage;
+import processing.core.PVector;
 
 import static com.colin.MainApp.spriteManager;
 
 public abstract class Renderable extends AppletObject {
 
-    private PImage sprite;
     private String spriteRoot;
     private String spriteID;
+    private PVector renderPoint;
+    private int tint;
 
     public abstract void render();
     public abstract void update();
 
     public PImage getSprite() {
-        if(sprite == null) {
-            loadSprite();
-        }
-        return sprite;
+        return (hasSpriteSheet()) ? spriteManager.getSpriteSheet(getSpriteRoot() + getSpriteID()).getSprite() : spriteManager.getSprite(getSpriteRoot() + getSpriteID());
+    }
+
+    public PImage getSprite(int num) {
+        return spriteManager.getSprite(getSpriteRoot() + getSpriteID(), num);
     }
 
     public String getSpriteRoot() {
@@ -28,8 +32,12 @@ public abstract class Renderable extends AppletObject {
         return spriteID;
     }
 
-    public void setSprite(PImage img) {
-        sprite = img;
+    public PVector getRenderPoint() {
+        return renderPoint;
+    }
+
+    public int getTint() {
+        return tint;
     }
 
     public void setSpriteRoot(String str) {
@@ -40,7 +48,19 @@ public abstract class Renderable extends AppletObject {
         spriteID = str;
     }
 
-    public void loadSprite() {
-        setSprite(spriteManager.getSprite(getSpriteRoot() + getSpriteID()));
+    public void setRenderPoint(float x, float y) {
+        renderPoint = new PVector(x, y);
+    }
+
+    public void setRenderPoint(PVector vec) {
+        setRenderPoint(vec.x, vec.y);
+    }
+
+    public void setTint(int num) {
+        tint = num;
+    }
+
+    public boolean hasSpriteSheet() {
+        return spriteManager.hasSpriteSheet(getSpriteRoot() + getSpriteID());
     }
 }

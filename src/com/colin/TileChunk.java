@@ -5,6 +5,8 @@ import processing.core.PVector;
 
 import java.util.ArrayList;
 
+import static com.colin.MainApp.game;
+
 public class TileChunk extends CoordinateObject{
 
     /*
@@ -48,6 +50,11 @@ public class TileChunk extends CoordinateObject{
      */
 
     public void update() {
+        for(Tile[] i : tilemap) {
+            for(Tile j : i){
+                j.update();
+            }
+        }
     }
 
     /*
@@ -59,7 +66,9 @@ public class TileChunk extends CoordinateObject{
             for (int j = 0; j < getTilemap()[i].length; j++) {
                 //Keeps the render back to front to counter negative coordinate values
                 Tile tile = (getCoordinate().y > 0) ? getTilemap()[i][j] : getTilemap()[i][PApplet.abs(j - CHUNK_WIDTH + 1)];
-                tile.render();
+                if(!game.getCamera().coordinateOffCamera(tile, Tile.TILE_SIZE * 2)) {
+                   tile.render();
+                }
             }
         }
     }
@@ -87,5 +96,10 @@ public class TileChunk extends CoordinateObject{
         boolean outBoundX = (getCoordinate().x > 0) ? (vec.x < getPos().x && vec.x > getPos().x - TRUE_CHUNK_WIDTH) : (vec.x > getPos().x && vec.x < getPos().x + TRUE_CHUNK_WIDTH);
         boolean outBoundY = (getCoordinate().y > 0) ? (vec.y < getPos().y && vec.y > getPos().y - TRUE_CHUNK_WIDTH) : (vec.y > getPos().y && vec.y < getPos().y + TRUE_CHUNK_WIDTH);
         return(outBoundX && outBoundY);
+    }
+
+    @Override
+    public String toString() {
+        return "Chunk: ( " + PApplet.floor(getCoordinate().x) + ", " + PApplet.floor(getCoordinate().y) + " )";
     }
 }
